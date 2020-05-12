@@ -2,7 +2,7 @@ import numpy as np
 import tflite_runtime.interpreter as tflite
 
 # Load TFLite model and allocate tensors.
-interpreter = tflite.Interpreter(model_path="data/inception_v4_299_quant.tflite")
+interpreter = tflite.Interpreter(model_path="../data/inception_v4_299_quant.tflite")
 interpreter.allocate_tensors()
 
 # Get input and output tensors.
