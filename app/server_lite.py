@@ -1,47 +1,22 @@
-import argparse
-
-from tflite_runtime.interpreter import Interpreter
 import numpy as np
+import tflite_runtime.interpreter as tflite
 
+# Load TFLite model and allocate tensors.
+interpreter = tflite.Interpreter(model_path="data/inception_v4_299_quant.tflite")
+interpreter.allocate_tensors()
 
-def load_labels(path):
-    with open(path, 'r') as f:
-        return {i: line.strip() for i, line in enumerate(f.readlines())}
+# Get input and output tensors.
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
 
+# Test model on random input data.
+input_shape = input_details[0]['shape']
+input_data = np.array(np.random.random_sample(input_shape), dtype=np.float32)
+interpreter.set_tensor(input_details[0]['index'], input_data)
 
-def set_input_tensor(interpreter, image):
-    tensor_index = interpreter.get_input_details()[0]['index']
-    input_tensor = interpreter.tensor(tensor_index)()[0]
-    input_tensor[:, :] = image
+interpreter.invoke()
 
-
-def classify_image(interpreter, image, top_k=1):
-    """Returns a sorted array of classification results."""
-    set_input_tensor(interpreter, image)
-    interpreter.invoke()
-    output_details = interpreter.get_output_details()[0]
-    output = np.squeeze(interpreter.get_tensor(output_details['index']))
-
-    # If the model is quantized (uint8 data), then dequantize the results
-    if output_details['dtype'] == np.uint8:
-        scale, zero_point = output_details['quantization']
-        output = scale * (output - zero_point)
-
-    ordered = np.argpartition(-output, top_k)
-    return [(i, output[i]) for i in ordered[:top_k]]
-
-def main():
-  parser = argparse.ArgumentParser(
-      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  parser.add_argument(
-      '--model', help='File path of .tflite file.', required=True)
-  parser.add_argument(
-      '--labels', help='File path of labels file.', required=True)
-  args = parser.parse_args()
-
-  labels = load_labels(args.labels)
-
-  interpreter = Interpreter(args.model)
-  interpreter.allocate_tensors()
-  _, height, width, _ = interpreter.get_input_details()[0]['shape']
-
+# The function `get_tensor()` returns a copy of the tensor data.
+# Use `tensor()` in order to get a pointer to the tensor.
+output_data = interpreter.get_tensor(output_details[0]['index'])
+print(output_data)
