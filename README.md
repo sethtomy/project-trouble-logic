@@ -5,7 +5,7 @@
 This server will take an image of a dog and return the top five breeds and probability of that 
 classification. This is currently setup with base weights of a ResNet50 network training on 
 imagenet but will be adapted to this InceptionResnetV2 model (https://github.com/sethtomy/MuttClassifier) 
-that was trained on the StanfordDogs dataset and achieved an accuracy of 90% on the test set.
+that was trained on the StanfordDogs dataset and achieved an accuracy of 90% on the test set(Inception ResNet V2).
 
 This project is targeted towards use on the Raspberry Pi running on Raspbian.
 
