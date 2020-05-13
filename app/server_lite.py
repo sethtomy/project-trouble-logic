@@ -1,4 +1,7 @@
 import numpy as np
+import platform
+PLATFORM = platform.system().lower()
+print('Current platform is: ' + PLATFORM)
 import tflite_runtime.interpreter as tflite
 
 # Load TFLite model and allocate tensors.
