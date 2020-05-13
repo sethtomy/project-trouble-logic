@@ -1,8 +1,5 @@
-import numpy as np
 import distro
-from PIL import Image
-import flask
-import io
+import numpy as np
 
 DISTRO = distro.id()
 print('Current platform is: ' + DISTRO)
@@ -13,33 +10,24 @@ else:
 
 MODEL_FILE = '../data/inception_v4_299_quant.tflite'
 LABEL_FILE = '../data/labels.txt'
-
-app = flask.Flask(__name__)
 interpreter = None
 input_details = None
 output_details = None
 
 
-@app.route('/', methods=['GET'])
-def default():
-    image_path = '../data/trouble.jpg'
-    image = Image.open(image_path)
+def classify(image):
     input_data = prepare_image(image)
-    classify(input_data)
+    results = feed_nn(input_data)
+    return prepare_results(results)
 
-    return flask.jsonify({'success': True})
 
+def prepare_results(results):
+    top_k = results.argsort()[-5:][::-1]
+    labels = load_labels(LABEL_FILE)
+    top_k_labels_and_percentages = \
+        [{str.split(labels[index], ':')[1]: (float(results[index]) / 255.0)} for index in top_k]
+    return top_k_labels_and_percentages
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    if flask.request.files.get('image'):
-        # read the image in PIL format
-        image = flask.request.files['image'].read()
-        image = Image.open(io.BytesIO(image))
-        input_data = prepare_image(image)
-        classify(input_data)
-
-        return flask.jsonify({'success': True})
 
 def load_model():
     # Load TFLite model and allocate tensors.
@@ -68,18 +56,8 @@ def prepare_image(pil_image):
     return np.expand_dims(resized_image, axis=0)
 
 
-def classify(input_data):
+def feed_nn(input_data):
     interpreter.set_tensor(input_details[0]['index'], input_data)
     interpreter.invoke()
     output_data = interpreter.get_tensor(output_details[0]['index'])
-    results = np.squeeze(output_data)
-    print(results)
-    top_k = results.argsort()[-5:][::-1]
-    labels = load_labels(LABEL_FILE)
-    for i in top_k:
-        print('{:08.6f}: {}'.format(float(results[i] / 255.0), labels[i]))
-
-
-if __name__ == '__main__':
-    load_model()
-    app.run(host='0.0.0.0', port=5000)
+    return np.squeeze(output_data)
