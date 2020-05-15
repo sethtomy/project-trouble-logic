@@ -32,8 +32,10 @@ def prepare_results(results):
 def load_model():
     # Load TFLite model and allocate tensors.
     global interpreter
+    print('loading model...')
     interpreter = tflite.Interpreter(model_path=MODEL_FILE)
     interpreter.allocate_tensors()
+    print('model loaded')
 
     # Get input and output tensors.
     global input_details, output_details
