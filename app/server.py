@@ -9,20 +9,6 @@ app = flask.Flask(__name__)
 CORS(app)
 
 
-@app.before_request
-def log_request_info():
-    app.logger.debug('Headers: %s', flask.request.headers)
-    app.logger.debug('Body: %s', flask.request.get_data())
-
-
-@app.route('/', methods=['GET'])
-def default():
-    image_path = '../data/trouble.jpg'
-    image = Image.open(image_path)
-    res = classify(image)
-    return flask.jsonify(res)
-
-
 @app.route('/predict', methods=['POST'])
 def predict():
     print(flask.request.files)
