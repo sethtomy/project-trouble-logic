@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo apt-get install -y libopenjp2-7 libtiff5
+sudo apt-get install -y libopenjp2-7 libtiff5 python3-numpy
 
 python3 -m pip install -r requirements.txt
 
