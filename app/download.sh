@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo apt-get install libopenjp2-7
+sudo apt-get install -y libopenjp2-7 libtiff5
 
 python3 -m pip install -r requirements.txt
 
